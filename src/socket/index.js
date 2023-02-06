@@ -1,4 +1,4 @@
-import { over } from 'stompjs';
+import { Stomp } from '@stomp/stompjs';
 import SockJS from 'sockjs-client';
 
 const options = {
@@ -8,9 +8,11 @@ const options = {
     transports: ["websocket"]
 }
 
+console.log("huy");
+
 let stompClient = null;
 let Sock = new SockJS('http://localhost:8081/ws', options); //connect websocket
 
-stompClient = over(Sock); //подключение stomp через sockjs connect /-/ далее используется API stomp
+stompClient = Stomp.over(Sock); //подключение stomp через sockjs connect /-/ далее используется API stomp
 
 export default stompClient;

@@ -1,8 +1,12 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import useStateWithCallback from './useStateWithCallback';
-import stompClient from '../socket';
+// import stompClient from '../socket';
+import SockJS from "sockjs-client";
+import {Stomp} from "@stomp/stompjs";
 
-export const LOCAL_VIDEO = 'LOCAL_VIDEO'
+export const LOCAL_VIDEO = 'LOCAL_VIDEO';
+let stompClient = null;
+
 
 export default function useWebRTC(roomID) {
 
@@ -23,11 +27,14 @@ export default function useWebRTC(roomID) {
     }); //ссылки на медиа элементы
 
     useEffect(() => {
-        connect();
+        let Sock = new SockJS('http://localhost:8081/ws'); //connect websocket
+        stompClient = Stomp.over(Sock);
         console.log(isConnected)
+        connect();
         if (isConnected) {
+
             async function startCapture() {
-                localMediaStream.current = await navigator.getDisplayMedia({
+                localMediaStream.current = await navigator.mediaDevices.getDisplayMedia({
                     audio: true,
                     video: {
                         cursor: 'always',
@@ -51,7 +58,7 @@ export default function useWebRTC(roomID) {
                 .catch(e => console.error("error userMedia: ", e));
         }
 
-    }, [roomID, isConnected]);
+    }, [roomID]);
 
     const connect = () => {
         stompClient.connect({}, onConnected, onError);
