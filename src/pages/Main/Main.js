@@ -26,8 +26,7 @@ const Main = () => {
 
     const joinRoom = () => {
         let roomID = 'a2e5f2b6-1440-47c5-b016-8825830e804e'
-        
-        //navigate(`/room/${roomID}`)
+        navigate(`/room/${roomID}`)
     }
 
     /*

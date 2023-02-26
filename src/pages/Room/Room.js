@@ -5,25 +5,23 @@ import useWebRTC, { LOCAL_VIDEO } from "../../hooks/useWebRTC";
 import stompClient from '../../socket';
 
 export default function Room() {
-
+    let stomp = stompClient();
     const { id: roomID } = useParams(); //получение roomID из url 
-
     const [isConnected, setIsConnected] = useState(false);
-    const { clients, provideoMediaRef } = useWebRTC(roomID, isConnected);
+    const { clients, provideoMediaRef } = useWebRTC(roomID, isConnected, stomp);
     console.log(clients);
 
     useEffect(() => {
         connect();
-        console.log('room start')
-    }, [roomID, isConnected])
+        console.log('room start', roomID)
+    }, [])
 
     const connect = () => {
-        console.log('connect start', stompClient)
-        stompClient.connect({}, onConnected, onError);
+        stomp.connect({}, onConnected, onError);
     }
 
     const onConnected = () => {
-        stompClient.subscribe('/topic/room/a2e5f2b6-1440-47c5-b016-8825830e804e', onMessageReceived);
+        stomp.subscribe('/topic/room/a2e5f2b6-1440-47c5-b016-8825830e804e', onMessageReceived);
         setIsConnected(true)
         console.log('Connected')
     }

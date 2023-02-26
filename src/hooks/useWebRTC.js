@@ -1,12 +1,9 @@
 import { useCallback, useEffect, useRef } from "react";
 import useStateWithCallback from './useStateWithCallback';
-import stompClient from '../socket';
 
 export const LOCAL_VIDEO = 'LOCAL_VIDEO'
 
-export default function useWebRTC(roomID, isConnected) {
-    console.log('webrtc start')
-
+export default function useWebRTC(roomID, isConnected, stomp) {
     const [clients, updateClients] = useStateWithCallback([]);
 
     const addNewClient = useCallback((newClient, cb) => {
@@ -44,7 +41,7 @@ export default function useWebRTC(roomID, isConnected) {
             }
 
             startCapture()
-                .then(() => stompClient.send("/app/room/a2e5f2b6-1440-47c5-b016-8825830e804e/join", {}, { room: roomID }))
+                .then(() => stomp.send("/app/room/a2e5f2b6-1440-47c5-b016-8825830e804e/join", {}, { room: roomID }))
                 .catch(e => console.error("error userMedia: ", e));
         }
 
