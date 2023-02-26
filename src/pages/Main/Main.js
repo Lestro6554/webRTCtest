@@ -1,8 +1,5 @@
 import { useNavigate } from 'react-router-dom';
-import { useEffect, useState } from 'react';
-
-import ACTIONS from '../../socket/action';
-import stompClient from '../../socket';
+import { useEffect, useRef, useState } from 'react';
 
 import './main.css';
 
@@ -29,9 +26,9 @@ const Main = () => {
 
     const joinRoom = () => {
         let roomID = 'a2e5f2b6-1440-47c5-b016-8825830e804e'
-        navigate(`/room/${roomID}`)
+        
+        //navigate(`/room/${roomID}`)
     }
-
 
     /*
 

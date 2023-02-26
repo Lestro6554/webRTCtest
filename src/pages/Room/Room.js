@@ -1,11 +1,49 @@
+import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom"
 import useWebRTC, { LOCAL_VIDEO } from "../../hooks/useWebRTC";
 
+import stompClient from '../../socket';
+
 export default function Room() {
 
-    const {id: roomID} = useParams(); //получение roomID из url 
-    const {clients, provideoMediaRef} = useWebRTC(roomID);
+    const { id: roomID } = useParams(); //получение roomID из url 
+
+    const [isConnected, setIsConnected] = useState(false);
+    const { clients, provideoMediaRef } = useWebRTC(roomID, isConnected);
     console.log(clients);
+
+    useEffect(() => {
+        connect();
+        console.log('room start')
+    }, [roomID, isConnected])
+
+    const connect = () => {
+        console.log('connect start', stompClient)
+        stompClient.connect({}, onConnected, onError);
+    }
+
+    const onConnected = () => {
+        stompClient.subscribe('/topic/room/a2e5f2b6-1440-47c5-b016-8825830e804e', onMessageReceived);
+        setIsConnected(true)
+        console.log('Connected')
+    }
+
+    const onError = (err) => {
+        console.log(err.headers.message);
+    }
+
+    //вызывается каждый раз при получении сообщения
+    const onMessageReceived = (payload) => {
+        let payloadData = JSON.parse(payload.body);
+        switch (payloadData.status) {
+            case "JOIN":
+                console.log('JOIN')
+                break;
+            case "MESSAGE":
+                console.log('MESSAGE')
+                break;
+        }
+    }
 
     return (
         <div>
