@@ -1,32 +1,44 @@
 import { useNavigate } from 'react-router-dom';
-import { useEffect, useRef, useState } from 'react';
+import { useRef, useState } from 'react';
+
+import { useStomp } from '../../providers/StompClient';
 
 import './main.css';
 
-
 const Main = () => {
 
+    const { stompClient } = useStomp();
     const navigate = useNavigate();
     const [rooms, updateRooms] = useState([]);
+    const [roomId, setRoomId] = useState('a2e5f2b6-1440-47c5-b016-8825830e804e');
     const rootNode = useRef();
 
+    /*
     useEffect(() => {
-        /*todo получение списка комнат
+        todo получение списка комнат
         socket.on(ACTIONS.SHARE_ROOMS, ({ rooms = [] } = {}) => {
             if (rootNode.current) {
                 updateRooms(rooms);
             }
-        });*/
+        });
     }, []);
-
+    */
     const addRoom = () => {
-        let roomID = 'a2e5f2b6-1440-47c5-b016-8825830e804e'
-        navigate(`/room/${roomID}`)
+        stompClient.connect({}, onConnected, onError);
+        navigate(`/room/${roomId}`);
     }
 
     const joinRoom = () => {
-        let roomID = 'a2e5f2b6-1440-47c5-b016-8825830e804e'
-        navigate(`/room/${roomID}`)
+        navigate(`/room/${roomId}`);
+    }
+
+    const onConnected = () => {
+        stompClient.subscribe(`/topic/room/${roomId}`);
+        console.log('connected');
+    }
+
+    const onError = (err) => {
+        console.log(err.headers.message);
     }
 
     /*
