@@ -1,15 +1,24 @@
 import { useCallback, useEffect, useRef } from "react";
+
+import { useStomp } from "../providers/StompClient";
 import useStateWithCallback from './useStateWithCallback';
 
-export const LOCAL_VIDEO = 'LOCAL_VIDEO'
+export const LOCAL_VIDEO = 'LOCAL_VIDEO';
 
-export default function useWebRTC(roomID, isConnected, stomp) {
+
+export default function useWebRTC(roomID) {
+
+    const { stompClient } = useStomp();
     const [clients, updateClients] = useStateWithCallback([]);
 
     const addNewClient = useCallback((newClient, cb) => {
-        if (!clients.includes(newClient)) {
-            updateClients(item => [...item, newClient], cb);
-        }
+        updateClients(list => {
+            if (!list.includes(newClient)) {
+                return [...list, newClient]
+            }
+
+            return list;
+        }, cb);
     }, [clients, updateClients]);
 
     const peerConnections = useRef({}); //хранение пиров для связки клиентов /-/ мутабельный
@@ -18,42 +27,44 @@ export default function useWebRTC(roomID, isConnected, stomp) {
         [LOCAL_VIDEO]: null
     }); //ссылки на медиа элементы
 
+
     useEffect(() => {
-        if (isConnected) {
-            async function startCapture() {
-                localMediaStream.current = await navigator.mediaDevices.getDisplayMedia({
-                    audio: true,
-                    video: {
-                        cursor: 'always',
-                        width: 1280,
-                        height: 720
-                    }
-                });
 
-                addNewClient(LOCAL_VIDEO, () => {
-                    const localVideoElement = peerMediaElements.current[LOCAL_VIDEO];
+        async function startCapture() {
+            localMediaStream.current = await navigator.mediaDevices.getDisplayMedia({
+                audio: true,
+                video: {
+                    cursor: 'always',
+                    width: 1280,
+                    height: 720
+                }
+            });
 
-                    if (localVideoElement) {
-                        localVideoElement.volume = 0; //не слышать себя
-                        localVideoElement.srcObject = localMediaStream.current;
-                    }
-                });
-            }
+            addNewClient(LOCAL_VIDEO, () => {
+                const localVideoElement = peerMediaElements.current[LOCAL_VIDEO];
 
-            startCapture()
-                .then(() => stomp.send("/app/room/a2e5f2b6-1440-47c5-b016-8825830e804e/join", {}, { room: roomID }))
-                .catch(e => console.error("error userMedia: ", e));
+                if (localVideoElement) {
+                    localVideoElement.volume = 0; //не слышать себя
+                    localVideoElement.srcObject = localMediaStream.current;
+                }
+            });
         }
 
-    }, [roomID, isConnected]);
+        startCapture()
+            .then(() => {
+                stompClient.send(`/topic/room/${roomID}/join`, {}, { room: roomID });
+            })
+            .catch(e => console.error("error userMedia: ", e));
+
+    }, [roomID]);
 
 
-    const provideoMediaRef = useCallback((id, node) => {
+    const provideMediaRef = useCallback((id, node) => {
         peerMediaElements.current[id] = node;
     }, [])
 
     return {
         clients,
-        provideoMediaRef
+        provideMediaRef
     };
 }
