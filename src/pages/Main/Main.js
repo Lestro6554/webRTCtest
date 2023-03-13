@@ -24,22 +24,9 @@ const Main = () => {
         navigate(`/room/${roomId}`);
     }
 
-    const joinRoom = () => {
-        navigate(`/room/${roomId}`);
-    }
-
     return (
         <div ref={rootNode}>
             <h1>Available Rooms</h1>
-
-            <ul>
-                {rooms.map(roomID => (
-                    <li key={roomID}>
-                        {roomID}
-                        <button onClick={joinRoom}>JOIN ROOM</button>
-                    </li>
-                ))}
-            </ul>
 
             <button onClick={addRoom}>Create New Room</button>
         </div>

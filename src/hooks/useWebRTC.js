@@ -27,6 +27,8 @@ export default function useWebRTC(roomID) {
         [LOCAL_VIDEO]: null
     }); //ссылки на медиа элементы
 
+    const subscribe = useRef({});
+
     useEffect(() => {
         async function startCapture() {
             localMediaStream.current = await navigator.mediaDevices.getDisplayMedia({
@@ -50,15 +52,20 @@ export default function useWebRTC(roomID) {
 
         startCapture()
             .then(() => {
-                stompClient.subscribe(`/topic/room/${roomID}`);
+                subscribe.current = stompClient.subscribe(`/topic/room/${roomID}`);
             })
             .then(() => {
                 stompClient.publish({ destination: `/app/room/${roomID}/join`, body: JSON.stringify({ room: { id: roomID } }) });
             })
             .catch(e => console.error("error userMedia: ", e));
 
-    }, [roomID]);
+        return () => {
+            console.log('123')
+            //localMediaStream.current.getTracks().forEach(track => track.stop());
+            //subscribe.current.unsubscribe();
+        }
 
+    }, [roomID]);
 
     const provideMediaRef = useCallback((id, node) => {
         peerMediaElements.current[id] = node;

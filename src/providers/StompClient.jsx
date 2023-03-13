@@ -32,10 +32,11 @@ export const StompProvider = (props) => {
     }
 
     useEffect(() => {
-        stompClient.activate();
-    }, [])
-    
-    console.log('stm start')
+        if(!stompClient.active) {
+            stompClient.activate();
+            console.log('stm activate')
+        }
+    }, [stompClient])
 
     return (
         <StompContext.Provider value={{ stompClient }}>
