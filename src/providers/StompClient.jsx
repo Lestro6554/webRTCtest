@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import { Client } from '@stomp/stompjs';
 import SockJS from 'sockjs-client';
 
@@ -11,7 +11,6 @@ export const useStomp = () => {
 
 export const StompProvider = (props) => {
 
-    // eslint-disable-next-line react-hooks/exhaustive-deps
     const stompClient = new Client({
         brokerURL: 'ws://localhost:8081/ws',
         debug: function (str) {
@@ -31,14 +30,7 @@ export const StompProvider = (props) => {
     
         return new SockJS('http://localhost:8081/ws', options);
     }
-/*
-    useEffect(() => {
-        if(!stompClient.active) {
-            stompClient.activate();
-            console.log('stm activate')
-        }
-    }, [stompClient])
-*/
+
     return (
         <StompContext.Provider value={{ stompClient }}>
             {props.children}
